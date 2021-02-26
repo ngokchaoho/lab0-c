@@ -53,12 +53,22 @@ void q_free(queue_t *q)
 bool q_insert_head(queue_t *q, char *s)
 {
     list_ele_t *newh;
-    /* TODO: What should you do if the q is NULL? */
+    if (q == NULL)
+        return false;
     newh = malloc(sizeof(list_ele_t));
-    /* Don't forget to allocate space for the string and copy it */
-    /* What if either call to malloc returns NULL? */
+    if (newh == NULL)
+        return false;
+    newh->value = malloc(strlen(s) + 1);
+    if (newh->value == NULL) {
+        free(newh);
+        return false;
+    }
+    strncpy(newh->value, s, strlen(s) + 1);
     newh->next = q->head;
     q->head = newh;
+    q->size += 1;
+    if (q->size == 1)
+        q->tail = q->head;
     return true;
 }
 
@@ -71,10 +81,30 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    /* TODO: You need to write the complete code for this function */
-    /* Remember: It should operate in O(1) time */
-    /* TODO: Remove the above comment when you are about to implement. */
-    return false;
+    if (q == NULL)
+        return false;
+
+    list_ele_t *newt;
+    newt = malloc(sizeof(list_ele_t));
+    if (newt == NULL)
+        return false;
+    newt->value = malloc(strlen(s) + 1);
+    if (newt->value == NULL) {
+        free(newt);
+        return false;
+    }
+    newt->next = NULL;
+    strncpy(newt->value, s, strlen(s) + 1);
+    q->size += 1;
+    if (q->size > 1) {
+        q->tail->next = newt;
+        q->tail = newt;
+    } else {
+        /*from empty queue*/
+        q->head = newt;
+        q->tail = newt;
+    }
+    return true;
 }
 
 /*
@@ -87,9 +117,19 @@ bool q_insert_tail(queue_t *q, char *s)
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* TODO: You need to fix up this code. */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (q == NULL || q->head == NULL)
+        return false;
+    if (sp != NULL) {
+        strncat(sp, q->head->value, bufsize - 1);
+    }
+    list_ele_t *prev_head = q->head;
     q->head = q->head->next;
+    free(prev_head->value);
+    free(prev_head);
+    q->size -= 1;
+    if (q->size == 0) {
+        q->tail = NULL;
+    }
     return true;
 }
 
