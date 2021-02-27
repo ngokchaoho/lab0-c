@@ -27,8 +27,8 @@ void q_free(queue_t *q)
         return;
     if (q->head != NULL) {
         list_ele_t *curr_ele = q->head;
-        list_ele_t *prev_ele = curr_ele;
         while (curr_ele != NULL) {
+            list_ele_t *prev_ele = curr_ele;
             free(curr_ele->value);
             if (curr_ele->next != NULL) {
                 curr_ele = curr_ele->next;
@@ -176,6 +176,42 @@ void q_reverse(queue_t *q)
  */
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (q == NULL || q->head == NULL || q->size == 1)
+        return;
+    list_ele_t *sorted_tail = q->tail;
+    list_ele_t *unsorted_head = q->head;
+    list_ele_t *prev = NULL;
+    list_ele_t *curr = NULL;
+    list_ele_t *minNode = NULL;
+    list_ele_t *min_Prev = NULL;
+    for (int i = q->size; i > 0; i--) {
+        curr = unsorted_head;
+        minNode = unsorted_head;
+        prev = unsorted_head;
+        min_Prev = unsorted_head;
+        for (int j = 0; j < i; j++) {
+            // printf("%s ",curr->value);
+            // printf("%s ",minNode->value);
+            // printf("%d\n",strnatcmp(curr->value,minNode->value));
+            if (strcmp(curr->value, minNode->value) < 0) {
+                minNode = curr;
+                min_Prev = prev;
+            }
+            curr = curr->next;
+            if (j != 0)
+                prev = prev->next;
+        }
+        // printf("%s",minNode->value);
+        sorted_tail->next = minNode;
+        sorted_tail = sorted_tail->next;
+        if (minNode == unsorted_head) {
+            unsorted_head = unsorted_head->next;  // moved comparision windows
+        } else {
+            min_Prev->next = minNode->next;
+        }
+        sorted_tail->next = NULL;
+        if (i == q->size)
+            q->head = sorted_tail;
+    }
+    q->tail = sorted_tail;
 }
