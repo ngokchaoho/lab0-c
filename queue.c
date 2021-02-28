@@ -169,6 +169,42 @@ void q_reverse(queue_t *q)
     q->tail = tmp;
 }
 
+list_ele_t *merge(list_ele_t *l1, list_ele_t *l2)
+{
+    if (!l2)
+        return l1;
+    if (!l1)
+        return l2;
+
+    if (strcmp(l1->value, l2->value) < 0) {
+        l1->next = merge(l1->next, l2);
+        return l1;
+    } else {
+        l2->next = merge(l1, l2->next);
+        return l2;
+    }
+}
+
+list_ele_t *merge_sort_list(list_ele_t *head)
+{
+    if (!head || !head->next)
+        return head;
+
+    list_ele_t *fast = head->next;
+    list_ele_t *slow = head;
+
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    fast = slow->next;
+    slow->next = NULL;
+
+    list_ele_t *l1 = merge_sort_list(head);
+    list_ele_t *l2 = merge_sort_list(fast);
+
+    return merge(l1, l2);
+}
 /*
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
@@ -178,40 +214,9 @@ void q_sort(queue_t *q)
 {
     if (q == NULL || q->head == NULL || q->size == 1)
         return;
-    list_ele_t *sorted_tail = q->tail;
-    list_ele_t *unsorted_head = q->head;
-    list_ele_t *prev = NULL;
-    list_ele_t *curr = NULL;
-    list_ele_t *minNode = NULL;
-    list_ele_t *min_Prev = NULL;
-    for (int i = q->size; i > 0; i--) {
-        curr = unsorted_head;
-        minNode = unsorted_head;
-        prev = unsorted_head;
-        min_Prev = unsorted_head;
-        for (int j = 0; j < i; j++) {
-            // printf("%s ",curr->value);
-            // printf("%s ",minNode->value);
-            // printf("%d\n",strnatcmp(curr->value,minNode->value));
-            if (strcmp(curr->value, minNode->value) < 0) {
-                minNode = curr;
-                min_Prev = prev;
-            }
-            curr = curr->next;
-            if (j != 0)
-                prev = prev->next;
-        }
-        // printf("%s",minNode->value);
-        sorted_tail->next = minNode;
-        sorted_tail = sorted_tail->next;
-        if (minNode == unsorted_head) {
-            unsorted_head = unsorted_head->next;  // moved comparision windows
-        } else {
-            min_Prev->next = minNode->next;
-        }
-        sorted_tail->next = NULL;
-        if (i == q->size)
-            q->head = sorted_tail;
-    }
-    q->tail = sorted_tail;
+    q->head = merge_sort_list(q->head);
+    list_ele_t *tmp = q->head;
+    while (tmp->next != NULL)
+        tmp = tmp->next;
+    q->tail = tmp;
 }
