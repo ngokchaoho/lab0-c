@@ -83,11 +83,20 @@ static void update_statistics(int64_t *exec_times, uint8_t *classes)
 static bool report(void)
 {
     double max_t = fabs(t_compute(t));
+    double df = t_compute_df(t);
+    if (df <= 1) {
+#undef t_threshold_moderate
+#define t_threshold_moderate 13
+    } else {
+#undef t_threshold_moderate
+#define t_threshold_moderate 10
+    }
     double number_traces_max_t = t->n[0] + t->n[1];
     double max_tau = max_t / sqrt(number_traces_max_t);
 
     printf("\033[A\033[2K");
     printf("meas: %7.2lf M, ", (number_traces_max_t / 1e6));
+    printf("df: %f, ", df);
     if (number_traces_max_t < enough_measurements) {
         printf("not enough measurements (%.0f still to go).\n",
                enough_measurements - number_traces_max_t);
