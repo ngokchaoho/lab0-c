@@ -5,7 +5,6 @@
 typedef struct {
     double mean[2];
     double m2[2];
-    double m4[2];
     double n[2];
 } t_ctx;
 
